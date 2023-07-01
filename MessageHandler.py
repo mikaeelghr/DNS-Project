@@ -78,7 +78,7 @@ class MessageHandler:
     @staticmethod
     def wait_for_message_from_user(username, mtype: MessageType):
         while True:
-            # TODO sleep(0.3)
+            sleep(0.1)
             MessageHandler.update_messages()
             for m in MessageHandler.incoming_messages:
                 if m.from_username == username and m.type == mtype:

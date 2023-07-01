@@ -14,20 +14,20 @@ while True:
         else:
             print('{} sent a message to you: {}'.format(m.from_username, m.body))
 
-    # TODO: Add sign up and sign in to message handler (last)
+    # TODO: Add sign up and sign in to message handler (last) (arman)
     # TODO: Add remove from group to message handler (last)
     # TODO: Add create group to message handler
     # TODO: Add add to group to message handler
     # TODO: Refresh key if session key is expired or new one is requested
 
-    # TODO: Add seq. no to messages
+    # TODO: Add seq. no to messages (paniz)
     # TODO: Server should authenticate user before accepting messages (client should sign messages)
 
-    # TODO: Add secret key for sessions
-    # TODO: Use secret key to encrypt messages before sending to server
-    # TODO: View first bytes of secret key to check if it's correct
+    # TODO: Add secret key for sessions (arman)
+    # TODO: Use secret key to encrypt messages before sending to server (arman)
+    # TODO: View first bytes of secret key to check if it's correct (arman)
 
-    # TODO: Encrypt private key with password
+    # TODO: Encrypt private key with password (arman)
 
     to_username = input('send_message_to_username: ')
     message = input('message: ')

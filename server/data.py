@@ -79,7 +79,7 @@ class Data:
     @staticmethod
     def remove_user_from_group(body: RemoveFromGroupRequestBody):
         Data.groups[body.group_id].remove(body.username)
-        # TODO: Access
+        # TODO: Access (paniz)
         ClassPersist.save(Data, 'server_data')
 
     @staticmethod
