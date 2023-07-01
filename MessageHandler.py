@@ -3,6 +3,7 @@ from typing import List
 from enum import Enum
 
 import requests
+from client_data import ClientData
 
 from utils.key_manager import KeyManagement
 from utils.rsa_utils import RSAUtil

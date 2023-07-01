@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 
 from server.data import RegisterRequestBody, Data, RequestBody, MessageToGroupRequestBody, MessageToUserRequestBody, \
-    RemoveFromGroupRequestBody, GetNewMessages
+    RemoveFromGroupRequestBody, GetNewMessages, MessageToUserLoginRequestBody
 from utils.rsa_utils import RSAUtil
 
 rsa = RSAUtil('server')
@@ -46,10 +46,18 @@ def handle_request(enc: EncryptedMessageRequestBody):
         Data.send_message_to_user(username, body)
     elif isinstance(body, RemoveFromGroupRequestBody):
         Data.remove_user_from_group(body)
+    elif isinstance(body, MessageToUserLoginRequestBody):
+        Data.send_message_user_login(username, body)
     elif isinstance(body, GetNewMessages):
         result = Data.get_new_messages(username)
-        # TODO: Encrypt result (paniz)
-        
-        # TODO: Add seq. no to messages (paniz)
+        # TODO: Encrypt result (paniz: DONE)
+        encrypted_result = []
+        for message in result:
+            public_key = message.public_key
+            sequence_number = message.sequence_number + 1
+            message.set_sequence_number(sequence_number)
+            encrypted_result.append(rsa.encrypt(public_key, message, True))
+
+        # TODO: Add seq. no to messages (paniz: DONE)
 
         return result

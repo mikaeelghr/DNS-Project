@@ -3,6 +3,7 @@ from typing import Dict, List, Any, Tuple
 
 from utils.password_utils import get_hashed_password
 from utils.singleton_class import ClassPersist
+from utils.manageFiles import manageFiles
 
 
 class User:
@@ -24,6 +25,10 @@ class BaseRequestBody:
 
 class MessageToUserRequestBody(BaseRequestBody):
     to_username: str
+    message: str
+
+class MessageToUserLoginRequestBody(BaseRequestBody):
+    username: str
     message: str
 
 
@@ -81,6 +86,15 @@ class Data:
         Data.messages[body.to_username].append((username, None, body.message_type, body.message))
         ClassPersist.save(Data, 'server_data')
 
+
+    @staticmethod
+    def send_message_user_login(username: str, body: MessageToUserLoginRequestBody):
+        if manageFiles.user_login(username, body.message):
+            Data.messages[body.username].append((username, None, body.message_type, "you have successfully"))
+        else:
+            Data.messages[body.to_username].append((username, None, body.message_type, "the password is not correct"))
+        ClassPersist.save(Data, 'server_data')
+
     @staticmethod
     def send_message_to_group(username: str, body: MessageToGroupRequestBody):
         #for to_username in Data.groups[body.to_group_id]:
@@ -94,7 +108,6 @@ class Data:
             Data.groups[body.admin_username][body.group_id].remove(body.username)
         else:
             raise Exception("Sorry, You don't have access to remove users")
-        
         # TODO: Access (paniz: DONE)
         ClassPersist.save(Data, 'server_data')
 
@@ -139,6 +152,8 @@ class RequestBody:
             return MessageToGroupRequestBody(**json.loads(self.body))
         elif self.path == '/user/send':
             return MessageToUserRequestBody(**json.loads(self.body))
+        elif self.path == '/user/login':
+            return MessageToUserLoginRequestBody(**json.loads(self.body))
         elif self.path == '/user/remove':
             return RemoveFromGroupRequestBody(**json.loads(self.body,self.username))
         elif self.path == '/messages':

@@ -31,6 +31,13 @@ class RSAUtil:
             part = message[n:n + 53]
             result.append(rsa.encrypt(bytes(part.encode('utf-8')), public_key).hex())
         return ''.join(result)
+    
+    def encrypt(self, public_key, message: str, flag) -> str:
+        result = []
+        for n in range(0, len(message), 53):
+            part = message[n:n + 53]
+            result.append(rsa.encrypt(bytes(part.encode('utf-8')), public_key).hex())
+        return ''.join(result)
 
     def decrypt(self, message: str) -> str:
         _, private_key = self.key_manager.load_my_key()
