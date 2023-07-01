@@ -44,6 +44,8 @@ class GetNewMessages(BaseRequestBody):
 class Data:
     users: Dict[str, User] = dict()
     messages = dict()
+    #                       state - list of usernames
+    # groups: Dict[int, Tuple[str, List[str]]]] = dict()
     groups: Dict[int, List[str]] = dict()
 
     @staticmethod

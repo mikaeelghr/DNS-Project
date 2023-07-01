@@ -33,3 +33,28 @@ while True:
     MessageHandler.send_message(Request('/user/send', Message(MessageType.NORMAL, json.dumps({
         'to_username': to_username, 'message': message
     }))))
+
+"""
+    for m in MessageHandler.get_new_messages_from_user(sys.argv[2]):
+        if m.type == MessageType.NORMAL:
+            if m.from_chat is not None:
+                print('{} sent a message to chat#{}: {}'.format(m.from_username, m.from_chat, m.body))
+            else:
+                print('{} sent a message to you: {}'.format(m.from_username, m.body))
+        elif m.type == MessageType.SYSTEM_DIFFIE_HELLMAN_STEP1:
+            a = generate_b()
+            MessageHandler.send_message(
+                Request('/user/send', Message(MessageType.SYSTEM_DIFFIE_HELLMAN_STEP2, json.dumps({
+                    'to_username': m.from_username, 'message': b
+                }))))
+    # ma -> ali : a
+    # ali -> ma : b
+    # -> secret
+
+    MessageHandler.send_message(Request('/user/send', Message(MessageType.SYSTEM_DIFFIE_HELLMAN_STEP1, json.dumps({
+        'to_username': 'reza', 'message': generate_a()
+    }))))
+    m = MessageHandler.wait_for_message_from_user(to_username, MessageType.SYSTEM_DIFFIE_HELLMAN_STEP2)
+    b = m.body
+    secret = a * b
+"""

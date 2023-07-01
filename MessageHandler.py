@@ -14,6 +14,9 @@ class MessageType(Enum):
     NORMAL = 'NORMAL'
     SYSTEM_DIFFIE_HELLMAN_STEP1 = 'SYSTEM_DIFFIE_HELLMAN_STEP1'
     SYSTEM_DIFFIE_HELLMAN_STEP2 = 'SYSTEM_DIFFIE_HELLMAN_STEP2'
+    USER_REMOVED_FROM_GROUP = 'USER_REMOVED_FROM_GROUP'
+    USER_ADDED_TO_GROUP = 'USER_ADDED_TO_GROUP'
+    AHAY_MELLAT_SECRET_KEY_NADARID = 'AHAY_MELLAT_SECRET_KEY_NADARID'
 
 
 class Message:
@@ -75,6 +78,7 @@ class MessageHandler:
     @staticmethod
     def wait_for_message_from_user(username, mtype: MessageType):
         while True:
+            # TODO sleep(0.3)
             MessageHandler.update_messages()
             for m in MessageHandler.incoming_messages:
                 if m.from_username == username and m.type == mtype:
@@ -99,6 +103,17 @@ class MessageHandler:
                 MessageHandler.incoming_messages.remove(m)
                 messages.append(m)
         return messages
+
+    @staticmethod
+    def get_new_messages_from_user(username) -> List[ReceivedMessage]:
+        MessageHandler.update_messages()
+        messages = []
+        for m in MessageHandler.incoming_messages:
+            if m.from_username == username and m.from_chat is None:
+                MessageHandler.incoming_messages.remove(m)
+                messages.append(m)
+        return messages
+
 
     @staticmethod
     def get_new_normal_messages_from_chat(chat_id: int):
