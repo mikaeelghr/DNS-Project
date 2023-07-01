@@ -41,6 +41,6 @@ class ClientData:
     def add_group_secret(group_id: int, secret: str):
         ClientData.groups_secrets[group_id] = secret
         ClassPersist.save(ClientData, f'{ClientData.username}_data')
-
+password = "HI"
 # TODO: load client data after login
 ClientData.load()

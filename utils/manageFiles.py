@@ -1,7 +1,7 @@
 import os
 import json
 import hashlib
-import AESCipher
+import utils.AESCipher
 
 hash = lambda text: hashlib.sha256(text.encode()).hexdigest()
 
