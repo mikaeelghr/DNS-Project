@@ -13,9 +13,13 @@ class User:
 
 
 class BaseRequestBody:
+    message_type: str
+
     def __init__(self, **kwargs):
-        for key, value in kwargs:
-            self.__setattr__(key, value)
+        self.message_type = kwargs['type']
+        args = json.loads(kwargs['body'])
+        for key in args:
+            self.__setattr__(key, args[key])
 
 
 class MessageToUserRequestBody(BaseRequestBody):
@@ -39,7 +43,7 @@ class GetNewMessages(BaseRequestBody):
 
 class Data:
     users: Dict[str, User] = dict()
-    messages: Dict[str, List[Tuple[str, int | None, str]]] = dict()
+    messages: Dict[str, List[Tuple[str, int | None, str, str]]] = dict()
     groups: Dict[int, List[str]] = dict()
 
     @staticmethod
@@ -59,13 +63,15 @@ class Data:
 
     @staticmethod
     def send_message_to_user(username: str, body: MessageToUserRequestBody):
-        Data.messages[body.to_username].append((username, None, body.message))
+        if body.to_username not in Data.messages:
+            Data.messages[body.to_username] = []
+        Data.messages[body.to_username].append((username, None, body.message_type, body.message))
         ClassPersist.save(Data, 'server_data')
 
     @staticmethod
     def send_message_to_group(username: str, body: MessageToGroupRequestBody):
         for to_username in Data.groups[body.to_group_id]:
-            Data.messages[to_username].append((username, body.to_group_id, body.message))
+            Data.messages[to_username].append((username, body.to_group_id, body.message_type, body.message))
         ClassPersist.save(Data, 'server_data')
 
     @staticmethod

@@ -8,7 +8,7 @@ from server.data import RegisterRequestBody, Data, RequestBody, MessageToGroupRe
     RemoveFromGroupRequestBody, GetNewMessages
 from utils.rsa_utils import RSAUtil
 
-rsa = RSAUtil()
+rsa = RSAUtil('server')
 
 
 class EncryptedMessageRequestBody(BaseModel):
@@ -17,7 +17,7 @@ class EncryptedMessageRequestBody(BaseModel):
 
 
 def decrypt(enc: EncryptedMessageRequestBody) -> Dict[str, Any]:
-    json_str = rsa.decrypt(bytes.fromhex(enc.encrypted_body)).decode('utf8')
+    json_str = rsa.decrypt(enc.encrypted_body)
     return json.loads(json_str)
 
 
