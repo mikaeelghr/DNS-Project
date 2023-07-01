@@ -43,7 +43,7 @@ class GetNewMessages(BaseRequestBody):
 
 class Data:
     users: Dict[str, User] = dict()
-    messages: Dict[str, List[Tuple[str, int | None, str, str]]] = dict()
+    messages = dict()
     groups: Dict[int, List[str]] = dict()
 
     @staticmethod
@@ -77,6 +77,7 @@ class Data:
     @staticmethod
     def remove_user_from_group(body: RemoveFromGroupRequestBody):
         Data.groups[body.group_id].remove(body.username)
+        # TODO: Access
         ClassPersist.save(Data, 'server_data')
 
     @staticmethod

@@ -13,7 +13,7 @@ class MessageType(Enum):
     # normal message
     NORMAL = 'NORMAL'
     SYSTEM_DIFFIE_HELLMAN_STEP1 = 'SYSTEM_DIFFIE_HELLMAN_STEP1'
-    SYSTEM_DIFFIE_HELLMAN_STEP2 = 'SYSTEM_DIFFIE_HELLMAN_STEP1'
+    SYSTEM_DIFFIE_HELLMAN_STEP2 = 'SYSTEM_DIFFIE_HELLMAN_STEP2'
 
 
 class Message:
@@ -26,8 +26,6 @@ class Message:
 
 
 class ReceivedMessage(Message):
-    from_username: str | None
-    from_chat: int | None
 
     def __init__(self, from_username, from_chat, type_e, body):
         super().__init__(type_e, body)
@@ -45,7 +43,7 @@ class Request:
 
 
 client_username = None
-rsa: RSAUtil | None = None
+rsa = None
 
 
 def setup_client(username):
@@ -70,6 +68,8 @@ class MessageHandler:
 
     @staticmethod
     def send_message(request: Request):
+        # TODO: Do handshake if session doesn't have key
+        # TODO: Keep state of session in Data
         call_server(request.path, json.dumps({'type': request.message.type.name, 'body': request.message.body}))
 
     @staticmethod
