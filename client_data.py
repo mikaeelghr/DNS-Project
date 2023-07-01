@@ -1,46 +1,46 @@
-class Data:
+from utils.key_manager import KeyManagement
+from utils.singleton_class import ClassPersist
+
+from typing import Optional, Dict
+
+
+class ClientData:
+    username = 'client'
     groups_secrets: Dict[int, str] = dict()
     chats_secrets: Dict[str, str] = dict()
+    key: KeyManagement = KeyManagement(username)
 
     @staticmethod
-    def load():
-        x = ClassPersist.load(Data(), 'server_data')
-        Data.users = x.users
-        Data.messages = x.messages
-        Data.groups = x.groups
+    def load(username: Optional[str] = None):
+        if username:
+            ClientData.username = username
+            key.username = username
+        ClientData.key.load_my_key()
+        x = ClassPersist.load(ClientData(), f'{username}_data')
+        ClientData.groups_secrets = x.groups_secrets
+        ClientData.chats_secrets = x.chats_secrets
 
     @staticmethod
-    def get_new_messages(username: str):
-        if username not in Data.messages:
-            return []
-        messages, Data.messages[username] = Data.messages[username], []
-        ClassPersist.save(Data, 'server_data')
-        return messages
+    def get_chat_secret(username: str):
+        if username not in ClientData.chats_secrets:
+            return None
+        return ClientData.chats_secrets[username]
 
     @staticmethod
-    def send_message_to_user(username: str, body: MessageToUserRequestBody):
-        if body.to_username not in Data.messages:
-            Data.messages[body.to_username] = []
-        Data.messages[body.to_username].append((username, None, body.message_type, body.message))
-        ClassPersist.save(Data, 'server_data')
-
+    def get_group_secret(group_id: int):
+        if group_id not in ClientData.groups_secrets:
+            return None
+        return ClientData.groups_secrets[group_id]
+    
     @staticmethod
-    def send_message_to_group(username: str, body: MessageToGroupRequestBody):
-        for to_username in Data.groups[body.to_group_id]:
-            Data.messages[to_username].append((username, body.to_group_id, body.message_type, body.message))
-        ClassPersist.save(Data, 'server_data')
-
+    def add_chat_secret(username: str, secret: str):
+        ClientData.chats_secrets[username] = secret
+        ClassPersist.save(ClientData, f'{ClientData.username}_data')
+    
     @staticmethod
-    def remove_user_from_group(body: RemoveFromGroupRequestBody):
-        Data.groups[body.group_id].remove(body.username)
-        ClassPersist.save(Data, 'server_data')
+    def add_group_secret(group_id: int, secret: str):
+        ClientData.groups_secrets[group_id] = secret
+        ClassPersist.save(ClientData, f'{ClientData.username}_data')
 
-    @staticmethod
-    def save_user(username, password, public_key):
-        hashed_password = get_hashed_password(password)
-        user = User(username, hashed_password, public_key)
-        Data.users[username] = user
-        ClassPersist.save(Data, 'server_data')
-
-
-Data.load()
+# TODO: load client data after login
+ClientData.load()

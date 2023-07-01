@@ -35,6 +35,8 @@ while True:
     # TODO: View first bytes of secret key to check if it's correct (arman)
 
     # TODO: Encrypt private key with password (arman)
+    # TODO: Store received messages with key
+    # TODO: Update key and messages when key is changed
 
     to_username = input('send_message_to_username: ')
     message = input('message: ')
