@@ -25,6 +25,7 @@ while True:
 
     # TODO: Add secret key for sessions
     # TODO: Use secret key to encrypt messages before sending to server
+    # TODO: View first bytes of secret key to check if it's correct
 
     # TODO: Encrypt private key with password
 
