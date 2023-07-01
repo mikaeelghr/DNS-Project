@@ -12,11 +12,14 @@ from utils.singleton_class import ClassPersist
 class MessageType(Enum):
     # normal message
     NORMAL = 'NORMAL'
-    SYSTEM_DIFFIE_HELLMAN_STEP1 = 'SYSTEM_DIFFIE_HELLMAN_STEP1'
+    INITIATE_DIFFIE_HELLMAN = 'INITIATE_DIFFIE_HELLMAN'
     SYSTEM_DIFFIE_HELLMAN_STEP2 = 'SYSTEM_DIFFIE_HELLMAN_STEP2'
     USER_REMOVED_FROM_GROUP = 'USER_REMOVED_FROM_GROUP'
     USER_ADDED_TO_GROUP = 'USER_ADDED_TO_GROUP'
     AHAY_MELLAT_SECRET_KEY_NADARID = 'AHAY_MELLAT_SECRET_KEY_NADARID'
+
+    REQUEST_PUBLIC_KEY = 'REQUEST_PUBLIC_KEY'
+    RESPONSE_PUBLIC_KEY = 'RESPONSE_PUBLIC_KEY'
 
 
 class Message:
@@ -72,8 +75,19 @@ class MessageHandler:
     @staticmethod
     def send_message(request: Request):
         # TODO: Do handshake if session doesn't have key
-        # TODO: Keep state of session in Data
+        if ClientData.get_chat_secret(request.message.to_chat) is None:
+            MessageHandler.get_key(request.message.to_chat)
         call_server(request.path, json.dumps({'type': request.message.type.name, 'body': request.message.body}))
+
+    @staticmethod
+    def get_key(chat_id: str):
+        MessageHandler.send_message(
+            Request('/user/get_public_key', Message(MessageType.REQUEST_PUBLIC_KEY, 
+            json.dumps({
+                'to_user_name': chat_id,
+                'public_key': rsa.key_manager.load_my_key()[0].exportKey().decode('utf-8')
+            }))))
+        MessageHandler.wait_for_message_from_chat(chat_id, MessageType.RESPONSE_PUBLIC_KEY)
 
     @staticmethod
     def wait_for_message_from_user(username, mtype: MessageType):

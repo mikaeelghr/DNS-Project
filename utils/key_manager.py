@@ -27,4 +27,9 @@ class KeyManagement:
         return self.public_keys[username]
 
     def load_my_key(self) -> typing.Tuple[PublicKey, PrivateKey]:
+        if self.my_key[0] is None:
+            loaded = ClassPersist.load(self, self.username + '_key')
+            self.my_key = loaded.my_key
+            self.public_keys = loaded.public_keys
+
         return self.my_key

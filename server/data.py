@@ -105,6 +105,7 @@ class RegisterRequestBody:
 
 class RequestBody:
     username: str
+    public_key: str
     path_body_sign: str
     body: str
 
