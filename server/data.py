@@ -32,9 +32,20 @@ class MessageToGroupRequestBody(BaseRequestBody):
     message: str
 
 
-class RemoveFromGroupRequestBody(BaseRequestBody):
+class RemoveRequestBody:
+    message_type: str
+
+    def __init__(self, **kwargs):
+        self.message_type = kwargs['type']
+        args = json.loads(kwargs['body','admin_username'])
+        for key in args:
+            self.__setattr__(key, args[key])
+
+
+class RemoveFromGroupRequestBody(RemoveRequestBody):
     group_id: int
     username: str
+    admin_username: str
 
 
 class GetNewMessages(BaseRequestBody):
@@ -44,9 +55,9 @@ class GetNewMessages(BaseRequestBody):
 class Data:
     users: Dict[str, User] = dict()
     messages = dict()
-    #                       state - list of usernames
-    # groups: Dict[int, Tuple[str, List[str]]]] = dict()
-    groups: Dict[int, List[str]] = dict()
+    #      admin-username   state - list of usernames
+    groups: Dict[str, Tuple[str, List[str]]] = dict()
+    # groups: Dict[int, List[str]] = dict()
 
     @staticmethod
     def load():
@@ -72,14 +83,19 @@ class Data:
 
     @staticmethod
     def send_message_to_group(username: str, body: MessageToGroupRequestBody):
-        for to_username in Data.groups[body.to_group_id]:
+        #for to_username in Data.groups[body.to_group_id]:
+        for group_id, (body.to_group_id, to_username) in Data.groups.items():
             Data.messages[to_username].append((username, body.to_group_id, body.message_type, body.message))
         ClassPersist.save(Data, 'server_data')
 
     @staticmethod
     def remove_user_from_group(body: RemoveFromGroupRequestBody):
-        Data.groups[body.group_id].remove(body.username)
-        # TODO: Access (paniz)
+        if body.admin_username in Data.groups.keys():
+            Data.groups[body.admin_username][body.group_id].remove(body.username)
+        else:
+            raise Exception("Sorry, You don't have access to remove users")
+        
+        # TODO: Access (paniz: DONE)
         ClassPersist.save(Data, 'server_data')
 
     @staticmethod
@@ -123,6 +139,6 @@ class RequestBody:
         elif self.path == '/user/send':
             return MessageToUserRequestBody(**json.loads(self.body))
         elif self.path == '/user/remove':
-            return RemoveFromGroupRequestBody(**json.loads(self.body))
+            return RemoveFromGroupRequestBody(**json.loads(self.body,self.username))
         elif self.path == '/messages':
             return GetNewMessages(**json.loads(self.body))

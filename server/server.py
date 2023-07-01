@@ -37,7 +37,8 @@ def handle_request(enc: EncryptedMessageRequestBody):
     username = request.username
     body = request.get_body()
 
-    # TODO: Add access control (paniz)
+    # TODO: Add access control (paniz: DONE, no need to add anything here!)
+
 
     if isinstance(body, MessageToGroupRequestBody):
         Data.send_message_to_group(username, body)
@@ -48,5 +49,7 @@ def handle_request(enc: EncryptedMessageRequestBody):
     elif isinstance(body, GetNewMessages):
         result = Data.get_new_messages(username)
         # TODO: Encrypt result (paniz)
+        
         # TODO: Add seq. no to messages (paniz)
+
         return result

@@ -1,4 +1,5 @@
 import json
+import random
 
 from MessageHandler import MessageHandler, setup_client, Request, Message, MessageType
 import sys, select
@@ -6,6 +7,8 @@ import sys, select
 username = sys.argv[1]
 
 setup_client(username)
+
+sequence_number = random.randint(1, 100)
 
 while True:
     for m in MessageHandler.get_new_normal_messages_from_user(sys.argv[2]):
@@ -20,7 +23,11 @@ while True:
     # TODO: Add add to group to message handler
     # TODO: Refresh key if session key is expired or new one is requested
 
-    # TODO: Add seq. no to messages (paniz)
+    # TODO: Add seq. no to messages (paniz, DONE)
+
+    sequence_number += 1
+    m.set_sequence_number(sequence_number)
+
     # TODO: Server should authenticate user before accepting messages (client should sign messages)
 
     # TODO: Add secret key for sessions (arman)

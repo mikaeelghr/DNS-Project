@@ -22,10 +22,16 @@ class MessageType(Enum):
 class Message:
     type: MessageType
     body: str
+    sequence_number: int
 
     def __init__(self, type_e, body):
+        self.public_key = ClientData.key_manager.load_my_key()[0].public_key()
         self.type = type_e
         self.body = body
+
+    def set_sequence_number(self, sequence_number):
+        self.sequence_number = sequence_number
+        self.body = f"{self.sequence_number}: {self.body}"
 
 
 class ReceivedMessage(Message):
