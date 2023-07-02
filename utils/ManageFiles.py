@@ -3,7 +3,6 @@ import json
 from utils.AESCipher import AESCipher
 from utils.password_utils import get_hashed_password, check_password
 
-hash = lambda text: hashlib.sha256(text.encode()).hexdigest()
 
 class ManageFiles:
     @staticmethod
@@ -38,7 +37,7 @@ class ManageFiles:
             return False
 
         users[username] = {
-            "password": hash(password),
+            "password": get_hashed_password(password),
         }
         keys = self.load_json_data("pubkeys.json")
         keys[username] = {
@@ -65,5 +64,5 @@ class ManageFiles:
         users = self.load_json_data("users.json")
         if username in users:
             stored_password = users[username]["password"]
-            return hash(password) == stored_password
+            return check_password(password, stored_password)
         return False
