@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+import base64
 import typing
 
 import rsa
@@ -33,3 +35,16 @@ class KeyManagement:
             self.public_keys = loaded.public_keys
 
         return self.my_key
+
+    @staticmethod
+    def public_key_to_str(public_key: PublicKey) -> str:
+        return str(base64.b64encode(public_key.save_pkcs1(format='PEM')))[2:-1]
+
+    @staticmethod
+    def str_to_public_key(public_key: str) -> PublicKey:
+        x = base64.b64decode(public_key)
+        return rsa.PublicKey.load_pkcs1(x, format='PEM')
+
+    def get_my_public_key_str(self) -> str:
+        pub, _ = self.load_my_key()
+        return KeyManagement.public_key_to_str(pub)

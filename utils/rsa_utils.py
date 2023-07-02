@@ -1,7 +1,5 @@
-import json
-
 import rsa
-from rsa import VerificationError, common
+from rsa import VerificationError
 
 from utils.key_manager import KeyManagement
 from utils.singleton_class import ClassPersist
@@ -26,13 +24,6 @@ class RSAUtil:
 
     def encrypt(self, username: str, message: str) -> str:
         public_key = self.key_manager.get_public_key(username)
-        result = []
-        for n in range(0, len(message), 53):
-            part = message[n:n + 53]
-            result.append(rsa.encrypt(bytes(part.encode('utf-8')), public_key).hex())
-        return ''.join(result)
-    
-    def encrypt(self, public_key, message: str, flag) -> str:
         result = []
         for n in range(0, len(message), 53):
             part = message[n:n + 53]

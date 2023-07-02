@@ -3,7 +3,7 @@ from typing import Dict, List, Any, Tuple
 
 from utils.password_utils import get_hashed_password
 from utils.singleton_class import ClassPersist
-from utils.manageFiles import manageFiles
+from utils.ManageFiles import ManageFiles
 
 
 class User:
@@ -27,8 +27,9 @@ class MessageToUserRequestBody(BaseRequestBody):
     to_username: str
     message: str
 
+
 class MessageToUserLoginRequestBody(BaseRequestBody):
-    username: str
+    to_username: str
     message: str
 
 
@@ -37,17 +38,7 @@ class MessageToGroupRequestBody(BaseRequestBody):
     message: str
 
 
-class RemoveRequestBody:
-    message_type: str
-
-    def __init__(self, **kwargs):
-        self.message_type = kwargs['type']
-        args = json.loads(kwargs['body','admin_username'])
-        for key in args:
-            self.__setattr__(key, args[key])
-
-
-class RemoveFromGroupRequestBody(RemoveRequestBody):
+class RemoveFromGroupRequestBody(BaseRequestBody):
     group_id: int
     username: str
     admin_username: str
@@ -58,25 +49,27 @@ class GetNewMessages(BaseRequestBody):
 
 
 class Data:
-    users: Dict[str, User] = dict()
+    users: Dict[str, Tuple[str, str, str]] = dict()
     messages = dict()
-    #      admin-username   state - list of usernames
-    groups: Dict[str, Tuple[str, List[str]]] = dict()
-    # groups: Dict[int, List[str]] = dict()
+    #                   admin-username   state - list of usernames
+    groups: Dict[int, Tuple[str, str, List[str]]] = dict()
 
     @staticmethod
     def load():
-        x = ClassPersist.load(Data(), 'server_data')
-        Data.users = x.users
-        Data.messages = x.messages
-        Data.groups = x.groups
+        x = ClassPersist.load(None, 'server_data')
+        if x is not None:
+            Data.users, Data.messages, Data.groups = x
+
+    @staticmethod
+    def save():
+        ClassPersist.save((Data.users, Data.messages, Data.groups), 'server_data')
 
     @staticmethod
     def get_new_messages(username: str):
         if username not in Data.messages:
             return []
         messages, Data.messages[username] = Data.messages[username], []
-        ClassPersist.save(Data, 'server_data')
+        Data.save()
         return messages
 
     @staticmethod
@@ -84,57 +77,54 @@ class Data:
         if body.to_username not in Data.messages:
             Data.messages[body.to_username] = []
         Data.messages[body.to_username].append((username, None, body.message_type, body.message))
-        ClassPersist.save(Data, 'server_data')
-
+        Data.save()
 
     @staticmethod
     def send_message_user_login(username: str, body: MessageToUserLoginRequestBody):
-        if manageFiles.user_login(username, body.message):
-            Data.messages[body.username].append((username, None, body.message_type, "you have successfully"))
+        if ManageFiles.user_login(username, body.message):
+            Data.messages[body.to_username].append((username, None, body.message_type, "you have successfully"))
         else:
             Data.messages[body.to_username].append((username, None, body.message_type, "the password is not correct"))
-        ClassPersist.save(Data, 'server_data')
+        Data.save()
 
     @staticmethod
     def send_message_to_group(username: str, body: MessageToGroupRequestBody):
-        #for to_username in Data.groups[body.to_group_id]:
+        # for to_username in Data.groups[body.to_group_id]:
         for group_id, (body.to_group_id, to_username) in Data.groups.items():
             Data.messages[to_username].append((username, body.to_group_id, body.message_type, body.message))
-        ClassPersist.save(Data, 'server_data')
+        Data.save()
 
     @staticmethod
-    def remove_user_from_group(body: RemoveFromGroupRequestBody):
-        if body.admin_username in Data.groups.keys():
-            Data.groups[body.admin_username][body.group_id].remove(body.username)
+    def remove_user_from_group(username: str, body: RemoveFromGroupRequestBody):
+        admin_username, state, usernames = Data.groups[body.group_id]
+        if username == admin_username:
+            Data.groups[body.group_id][2].remove(body.username)
         else:
             raise Exception("Sorry, You don't have access to remove users")
-        # TODO: Access (paniz: DONE)
-        ClassPersist.save(Data, 'server_data')
+        Data.save()
 
     @staticmethod
     def save_user(username, password, public_key):
         hashed_password = get_hashed_password(password)
-        user = User(username, hashed_password, public_key)
-        Data.users[username] = user
-        ClassPersist.save(Data, 'server_data')
-
+        Data.users[username] = (username, hashed_password, public_key)
+        Data.save()
 
 Data.load()
 
 
-class RegisterRequestBody:
-    username: int
-    password: int
+class LoginOrRegisterRequestBody:
+    username: str
+    password: str
     public_key: str
 
-    def __init__(self, username, public_key):
+    def __init__(self, username, password, public_key):
         self.username = username
+        self.password = password
         self.public_key = public_key
 
 
 class RequestBody:
     username: str
-    public_key: str
     path_body_sign: str
     body: str
 
@@ -155,6 +145,6 @@ class RequestBody:
         elif self.path == '/user/login':
             return MessageToUserLoginRequestBody(**json.loads(self.body))
         elif self.path == '/user/remove':
-            return RemoveFromGroupRequestBody(**json.loads(self.body,self.username))
+            return RemoveFromGroupRequestBody(**json.loads(self.body))
         elif self.path == '/messages':
             return GetNewMessages(**json.loads(self.body))

@@ -14,7 +14,7 @@ class ClientData:
     def load(username: Optional[str] = None):
         if username:
             ClientData.username = username
-            key.username = username
+            ClientData.key.username = username
         ClientData.key.load_my_key()
         x = ClassPersist.load(ClientData(), f'{username}_data')
         ClientData.groups_secrets = x.groups_secrets
@@ -31,16 +31,18 @@ class ClientData:
         if group_id not in ClientData.groups_secrets:
             return None
         return ClientData.groups_secrets[group_id]
-    
+
     @staticmethod
     def add_chat_secret(username: str, secret: str):
         ClientData.chats_secrets[username] = secret
         ClassPersist.save(ClientData, f'{ClientData.username}_data')
-    
+
     @staticmethod
     def add_group_secret(group_id: int, secret: str):
         ClientData.groups_secrets[group_id] = secret
         ClassPersist.save(ClientData, f'{ClientData.username}_data')
+
+
 password = "HI"
 # TODO: load client data after login
 ClientData.load()

@@ -2,16 +2,20 @@ import json
 import random
 
 from MessageHandler import MessageHandler, setup_client, Request, Message, MessageType
-import sys, select
+import sys
 
 username = sys.argv[1]
+password = sys.argv[2]
 
 setup_client(username)
 
 sequence_number = random.randint(1, 100)
 
+response = MessageHandler.login(username, password)
+print(response['result'])
+
 while True:
-    for m in MessageHandler.get_new_normal_messages_from_user(sys.argv[2]):
+    for m in MessageHandler.get_new_normal_messages():
         if m.from_chat is not None:
             print('{} sent a message to chat#{}: {}'.format(m.from_username, m.from_chat, m.body))
         else:
@@ -24,9 +28,6 @@ while True:
     # TODO: Refresh key if session key is expired or new one is requested
 
     # TODO: Add seq. no to messages (paniz, DONE)
-
-    sequence_number += 1
-    m.set_sequence_number(sequence_number)
 
     # TODO: Server should authenticate user before accepting messages (client should sign messages)
 
