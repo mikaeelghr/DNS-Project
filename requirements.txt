@@ -1,5 +1,8 @@
 fastapi[all]
 uvicorn[standard]
 hypercorn[trio]
-bcrypt
-rsa
+bcrypt~=3.2.0
+rsa~=4.9
+cryptography~=41.0.1
+pydantic~=1.10.10
+requests~=2.25.1
