@@ -1,12 +1,8 @@
 from cryptography.fernet import Fernet
-import base64, hashlib
 
 
-def encrypt(filename, key):
+def encrypt_and_save(filename, file_data, key):
     f = Fernet(key)
-    with open(filename, "rb") as file:
-        # read the encrypted data
-        file_data = file.read()
     # encrypt data
     encrypted_data = f.encrypt(file_data)
     # write the encrypted file
@@ -14,12 +10,8 @@ def encrypt(filename, key):
         file.write(encrypted_data)
     
     
-def decrypt(filename, key):
+def load_and_decrypt(filename, key) -> bytes:
     f = Fernet(key)
     with open(filename, "rb") as file:
-        # read the encrypted data
         encrypted_data = file.read()
-    # decrypt data
-    decrypted_data = f.decrypt(encrypted_data)
-    with open(filename, "wb") as file:
-        file.write(decrypted_data)
+    return f.decrypt(encrypted_data)

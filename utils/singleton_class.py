@@ -1,6 +1,9 @@
 import pickle
-from utils.fernet import encrypt, decrypt
+from os.path import exists
+
+from utils.fernet import encrypt_and_save, load_and_decrypt
 from utils.password import password
+
 
 class ClassPersist:
     @staticmethod
@@ -8,9 +11,7 @@ class ClassPersist:
         if name is None:
             name = cls.__class__.__name__
         try:
-            with open(name + '.pkl', 'rb') as inp:
-                obj = pickle.load(inp)
-            encrypt(name + '.pkl', password)
+            obj = pickle.loads(load_and_decrypt(name + '.pkl', password))
             return obj
         except FileNotFoundError:
             return cls
@@ -19,6 +20,5 @@ class ClassPersist:
     def save(cls, name=None):
         if name is None:
             name = cls.__class__.__name__
-        decrypt(name + '.pkl', password)
-        with open(name + '.pkl', 'wb') as handle:
-            pickle.dump(cls, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        data = pickle.dumps(cls, protocol=pickle.HIGHEST_PROTOCOL)
+        encrypt_and_save(name + '.pkl', data, password)
